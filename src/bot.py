@@ -28,7 +28,7 @@ def resend_text_to_discord(post):
              }}
     try:
         req = requests.post(URL, json=aviso)
-        if req != "OK":
+        if req.text != "OK":
             print(req.text)
     except:
         print('Error en la conexion, post no enviado')
