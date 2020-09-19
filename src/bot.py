@@ -35,7 +35,7 @@ def resend_text_to_discord(post):
     """create a request of http (post) to the discord bot server when the bot received a post of the channel
 
     Args:
-        post (telebot.post): the new post of the channel received recently
+        post (telebot.Post): the new post of the channel received recently
     """
     image_str = None
     if post.photo:
@@ -57,6 +57,11 @@ def resend_text_to_discord(post):
 
 @bot.message_handler(func=lambda m: True, content_types=['new_chat_participant'])
 def on_user_joins(message):
+    """send a welcome message to new joined user (only permitted group)
+
+    Args:
+        message (telebot.Message): 
+    """
     if not is_permitted_group(message.chat.id):
         return
 
@@ -72,6 +77,11 @@ def on_user_joins(message):
 
 @bot.message_handler(commands=["discord"])
 def get_discord_link(message):
+    """send a invitation link of discord whe the user call this command as private and is a member of our permitted telegram group
+
+    Args:
+        message (telebot.Message): 
+    """
     if message.chat.type != 'private':
         bot.reply_to(message, text_messages['only_private_command'])
         return

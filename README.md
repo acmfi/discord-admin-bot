@@ -1,6 +1,6 @@
 # Configuración
 
-Crear y modificar el fichero src/bot_conf.json con el siguiente formato
+Crear y modificar el fichero src/bot_conf.json con el siguiente formato. Todo los servicios de este bot este limitado solo para un único grupo de telegram para evitar posibles fugas de información y aquellos usuarios que forman parte de este grupo, esto es posible con la configuración de la clave "permitted_group_id", para conseguir el ID del grupo consulte la siguiente [página](https://plexadictos.wordpress.com/2018/03/15/crear-un-bot-y-un-grupo-en-telegram-para-obtener-el-token-y-el-group-id/)
 
 ```json
 {
