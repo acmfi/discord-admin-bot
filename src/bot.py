@@ -2,6 +2,7 @@ import telebot as tb
 import requests
 import json
 import base64
+import os
 
 with open('src/bot_conf.json', 'r') as conf_file:
     CONF = json.load(conf_file)
@@ -30,6 +31,10 @@ text_server = {
 
 PERMITTED_ROLE_MEMBER = ('creator', 'administrator', 'member')
 DISCORDLK_USERS_PATH = 'src/discordlk_geted_users.txt'
+
+if not os.path.exists(DISCORDLK_USERS_PATH):
+    with open(DISCORDLK_USERS_PATH, 'w'):
+        pass
 
 with open(DISCORDLK_USERS_PATH, 'r') as file:
     discordlk_geted_users = [line.strip() for line in file.readlines()]
@@ -103,7 +108,6 @@ def get_discord_link(message):
         return
 
     user_id = str(message.from_user.id)
-    print(discordlk_geted_users)
     if status == 'member' and user_id in discordlk_geted_users:
         bot.reply_to(message, text_messages['discordlk_geted_already'])
         return
