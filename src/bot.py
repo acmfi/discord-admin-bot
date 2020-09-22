@@ -3,7 +3,8 @@ import requests
 import json
 import base64
 
-CONF = json.load(open('src/bot_conf.json', 'r'))
+with open('src/bot_conf.json', 'r') as conf_file:
+    CONF = json.load(conf_file)
 
 URL = 'http://' + CONF['discord_bot_host']
 bot = tb.TeleBot(CONF['token'])
@@ -11,19 +12,27 @@ bot = tb.TeleBot(CONF['token'])
 
 text_messages = {
     'welcome':
-        u'Welcome to ACM group{name}!',
+        u'@{name} Welcome to ACM group!',
     'link_invitation':
         u'@{name}, use this link {link} to join our discord server',
     'only_private_command':
         u'This command is only available in private, try to start a private conversation with me',
     'not_member':
-        u'You must be a member of our telegram group'
+        u'You must be a member of our telegram group',
+    'discordlk_geted_already':
+        u'You have already obtained the invitation link, contact the group administrator if you have problems'
 }
 
 text_server = {
     'error':
-        u'Error en la conexión'
+        u'Error: {detail}'
 }
+
+PERMITTED_ROLE_MEMBER = ('creator', 'administrator', 'member')
+DISCORDLK_USERS_PATH = 'src/discordlk_geted_users.txt'
+
+with open(DISCORDLK_USERS_PATH, 'r') as file:
+    discordlk_geted_users = [line.strip() for line in file.readlines()]
 
 
 def is_permitted_group(chat_id):
@@ -52,7 +61,8 @@ def resend_text_to_discord(post):
         if req.text != "OK":
             print(req.text)
     except:
-        print(text_server['error'])
+        print(text_server['error'].format(
+            detail='no se ha podido comunicar con el servidor de discord bot'))
 
 
 @bot.message_handler(func=lambda m: True, content_types=['new_chat_participant'])
@@ -86,8 +96,16 @@ def get_discord_link(message):
         bot.reply_to(message, text_messages['only_private_command'])
         return
 
-    if not bot.get_chat_member(int(CONF['permitted_group_id']), message.from_user.id):
+    status = bot.get_chat_member(
+        int(CONF['permitted_group_id']), message.from_user.id).status
+    if not status in PERMITTED_ROLE_MEMBER:
         bot.reply_to(message, text_messages['not_member'])
+        return
+
+    user_id = str(message.from_user.id)
+    print(discordlk_geted_users)
+    if status == 'member' and user_id in discordlk_geted_users:
+        bot.reply_to(message, text_messages['discordlk_geted_already'])
         return
 
     try:
@@ -97,10 +115,15 @@ def get_discord_link(message):
         if req.text.startswith("https://"):
             bot.reply_to(message, text_messages['link_invitation'].format(
                 name=message.from_user.first_name, link=req.text))
+
+            discordlk_geted_users.append(user_id)
+            with open(DISCORDLK_USERS_PATH, 'a') as file:
+                file.write(user_id + '\n')
         else:
             print(req.text)
     except:
-        print(text_server['error'])
+        print(text_server['error'].format(
+            detail='no se ha podido comunicar con el servidor de discord bot o no hay permisos en el fichero'))
 
 
 bot.polling(none_stop=False, interval=0, timeout=20)
