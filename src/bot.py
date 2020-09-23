@@ -70,7 +70,8 @@ def resend_text_to_discord(post):
                  "username": CONF["host_username"], "password": CONF["host_password"]
              }}
     try:
-        req = requests.post(URL + '/sendChannelPost', json=aviso)
+        req = requests.post(
+            URL + '/server/channel/text/send_notice', json=aviso)
         if req.text != "OK":
             print(req.text)
     except:
