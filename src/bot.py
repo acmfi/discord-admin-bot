@@ -41,6 +41,14 @@ with open(DISCORDLK_USERS_PATH, 'r') as file:
 
 
 def is_permitted_group(chat_id):
+    """check if the command from message happened in a permitted telegram group
+
+    Args:
+        chat_id (int): id of the message object
+
+    Returns:
+        bool: True mean it is a permitted group and vice versa
+    """
     return chat_id == int(CONF['permitted_group_id'])
 
 
