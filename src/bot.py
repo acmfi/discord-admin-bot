@@ -12,6 +12,14 @@ bot = tb.TeleBot(CONF['token'])
 
 
 text_messages = {
+    'help': '''
+Private command:
+/discord - get a invitation link of ACM discord server (once per user)
+
+Group command:
+/algun_comando - escribir la descripción del comando aquí
+''',
+
     'welcome':
         u'@{name} Welcome to ACM group!',
     'link_invitation':
@@ -52,31 +60,14 @@ def is_permitted_group(chat_id):
     return chat_id == int(CONF['permitted_group_id'])
 
 
-@bot.channel_post_handler(content_types=['text', 'photo'])
-def resend_text_to_discord(post):
-    """create a request of http (post) to the discord bot server when the bot received a post of the channel
+@bot.message_handler(commands=['start', 'help'])
+def send_welcome(message):
+    """send a list of commands to the new user or when they invoke help
 
     Args:
-        post (telebot.Post): the new post of the channel received recently
+        message (telebot.Message):
     """
-    image_str = None
-    if post.photo:
-        downloaded_file = bot.download_file(
-            bot.get_file(post.photo[-1].file_id).file_path)
-        image_byte = base64.b64encode(downloaded_file)
-        image_str = image_byte.decode('ascii')
-    aviso = {"text": post.text, "caption": post.caption, "photo": image_str,
-             "user": {
-                 "username": CONF["host_username"], "password": CONF["host_password"]
-             }}
-    try:
-        req = requests.post(
-            URL + '/server/channel/text/send_notice', json=aviso)
-        if req.text != "OK":
-            print(req.text)
-    except:
-        print(text_server['error'].format(
-            detail='no se ha podido comunicar con el servidor de discord bot'))
+    bot.reply_to(message, text_messages['help'])
 
 
 @bot.message_handler(func=lambda m: True, content_types=['new_chat_participant'])
