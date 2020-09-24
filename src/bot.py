@@ -120,9 +120,10 @@ def get_discord_link(message):
             bot.reply_to(message, text_messages['link_invitation'].format(
                 name=message.from_user.first_name, link=req.text))
 
-            discordlk_geted_users.append(user_id)
-            with open(DISCORDLK_USERS_PATH, 'a') as file:
-                file.write(user_id + '\n')
+            if status == 'member':
+                discordlk_geted_users.append(user_id)
+                with open(DISCORDLK_USERS_PATH, 'a') as file:
+                    file.write(user_id + '\n')
         else:
             print(req.text)
     except:
